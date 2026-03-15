@@ -33,34 +33,39 @@ You manage the lifecycle of multiple features being developed simultaneously. Ea
 
 For each independent PRD that is ready to work on:
 
-1. **Create a feature branch from HEAD** (not `origin/main`):
-   ```bash
-   git checkout -b ralph/<feature-name> HEAD
-   ```
-   The branch name is `ralph/<feature-name>` (no date in branch name). For example, `prd-2026-03-15-task-status.md` → branch `ralph/task-status`.
+1. **Create a branch with only the target PRD** using git plumbing (never leaves HEAD):
 
-2. **Remove all other PRDs** from `docs/prds/todo/` on this branch, keeping only the target feature's PRD:
    ```bash
-   # Remove all PRDs except the target
-   find docs/prds/todo/ -name 'prd-*.md' ! -name 'prd-<date>-<feature>.md' -delete
+   FEATURE="<feature-name>"
+   TARGET_PRD="prd-<date>-<feature>.md"
+   BRANCH="ralph/$FEATURE"
+
+   # Step 1: Read HEAD's tree into a temporary index
+   TMPINDEX=$(mktemp)
+   GIT_INDEX_FILE="$TMPINDEX" git read-tree HEAD
+
+   # Step 2: Remove all other PRDs from docs/prds/todo/ (keep only the target)
+   for f in $(GIT_INDEX_FILE="$TMPINDEX" git ls-files "docs/prds/todo/prd-*.md"); do
+     if [ "$(basename "$f")" != "$TARGET_PRD" ]; then
+       GIT_INDEX_FILE="$TMPINDEX" git rm --cached --quiet "$f"
+     fi
+   done
+
+   # Step 3: Write the modified tree and create a commit
+   NEW_TREE=$(GIT_INDEX_FILE="$TMPINDEX" git write-tree)
+   rm -f "$TMPINDEX"
+   NEW_COMMIT=$(git commit-tree "$NEW_TREE" -p HEAD -m "chore: prepare branch for $FEATURE")
+
+   # Step 4: Create the branch ref and push
+   git update-ref "refs/heads/$BRANCH" "$NEW_COMMIT"
+   git push -u origin "$BRANCH"
    ```
 
-3. **Commit** the clean branch:
-   ```bash
-   git add -A && git commit -m "chore: prepare branch for <feature-name>"
-   ```
+   This uses a **temporary index** to build a modified tree without touching the working directory or current branch. The current checkout remains completely undisturbed.
 
-4. **Push** the branch to origin:
-   ```bash
-   git push -u origin ralph/<feature-name>
-   ```
+   The branch name is `ralph/<feature-name>` (no date). For example, `prd-2026-03-15-task-status.md` → branch `ralph/task-status`.
 
-5. **Switch back** to the original branch before preparing the next one:
-   ```bash
-   git checkout -
-   ```
-
-6. Record the branch name + PRD filename for the ralph-agent
+2. Record the branch name + PRD filename for the ralph-agent
 
 ### Phase 4: Launch Wave
 
