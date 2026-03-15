@@ -1,6 +1,36 @@
 # RaV Town — Read-and-Vibe Town
 
-Ralph is a multi-agent orchestration system that autonomously implements features from Product Requirements Documents (PRDs). It coordinates parallel AI agents, each working in isolated git worktrees, to go from specification to merged pull request without human intervention.
+![RaV Town Banner](rav-town-banner.png)
+
+A multi-agent orchestration system that autonomously implements features from Product Requirements Documents (PRDs). It coordinates parallel AI agents, each working in isolated git worktrees, to go from specification to merged pull request without human intervention.
+
+## Quick Start
+
+### 1. Create PRDs
+
+Use the `/prd` skill to generate PRDs for each feature you want to build:
+
+```
+/prd Add a task priority system with high/medium/low levels
+```
+
+This creates `docs/prds/todo/prd-<date>-<feature>.md` for each feature. Repeat for as many features as you need.
+
+### 2. Run Ravtown Mayor
+
+Launch the orchestrator agent to implement all pending PRDs:
+
+```bash
+copilot --agent ravtown-mayor
+```
+
+Then prompt it with:
+
+```
+Complete all todo PRDs
+```
+
+The mayor takes it from there — preparing branches, launching parallel agents, and merging PRs until every PRD is done.
 
 ## How It Works
 
@@ -193,35 +223,7 @@ Key rules:
 - Every story needs `"Typecheck passes"` as a criterion
 - UI stories need `"Verify in browser using dev-browser skill"`
 
-## Usage
-
-### 1. Create PRDs
-
-Use the `/prd` skill to generate PRDs for each feature you want to build:
-
-```
-/prd Add a task priority system with high/medium/low levels
-```
-
-This creates `docs/prds/todo/prd-<date>-<feature>.md` for each feature. Repeat for as many features as you need.
-
-### 2. Run Ravtown Mayor
-
-Launch the orchestrator agent to implement all pending PRDs:
-
-```bash
-copilot --agent ravtown-mayor
-```
-
-Then prompt it with:
-
-```
-Complete all todo PRDs
-```
-
-The mayor takes it from there — preparing branches, launching parallel agents, and merging PRs until every PRD is done.
-
-### Manual / Single Feature
+## Manual / Single Feature
 
 If you prefer to run a single feature manually:
 
@@ -232,7 +234,7 @@ If you prefer to run a single feature manually:
   10
 ```
 
-## Adopting Ralph in Your Project
+## Adopting RaV Town in Your Project
 
 1. **Copy this repo's structure** into your project:
    ```
