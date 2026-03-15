@@ -6,7 +6,7 @@ Ralph is a multi-agent orchestration system that autonomously implements feature
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                     Ralph Orchestrator                           │
+│                      Ravtown Mayor                               │
 │  Scans PRDs → builds dependency graph → prepares branches        │
 │  → launches agent waves                                          │
 └────────┬────────────────────────────────────────────────────────┘
@@ -43,7 +43,7 @@ Each Ralph agent runs a **loop** (`ralph.sh` via the `/ralph-loop` skill) that s
 | Agent | Role |
 |---|---|
 | [**ralph-agent**](.github/agents/ralph-agent.md) | Executes a single PRD end-to-end. Creates worktree from a prepared branch, auto-runs `/ralph-prd` to convert the PRD, runs `/ralph-loop` to implement stories, archives completed work. |
-| [**ralph-orchestrator**](.github/agents/ralph-orchestrator.md) | Fleet manager. Scans `docs/prds/todo/` for PRD files, builds a dependency DAG, prepares isolated feature branches from HEAD, launches agents in parallel waves, cleans up on completion. |
+| [**ravtown-mayor**](.github/agents/ravtown-mayor.md) | Fleet manager. Scans `docs/prds/todo/` for PRD files, builds a dependency DAG, prepares isolated feature branches from HEAD, launches agents in parallel waves, cleans up on completion. |
 
 ### Skills (`/.github/skills/`)
 
@@ -112,10 +112,10 @@ The date is set when the `/prd` skill first creates the PRD and carries through 
 2. /prd skill generates docs/prds/todo/prd-2026-03-15-feature.md
         │
         ▼
-3. Orchestrator discovers PRDs in docs/prds/todo/
+3. Ravtown Mayor discovers PRDs in docs/prds/todo/
         │
         ▼
-4. Orchestrator prepares branch from HEAD:
+4. Ravtown Mayor prepares branch from HEAD:
    ┌─────────────────────────────────────────┐
    │  Create branch ralph/<feature> from HEAD │
    │  Remove other PRDs from docs/prds/todo/  │
@@ -123,7 +123,7 @@ The date is set when the `/prd` skill first creates the PRD and carries through 
    └─────────────────────────────────────────┘
         │
         ▼
-5. Orchestrator launches Ralph Agent in background
+5. Ravtown Mayor launches Ralph Agent in background
         │
         ▼
 6. Ralph Agent sets up:
@@ -150,7 +150,7 @@ The date is set when the `/prd` skill first creates the PRD and carries through 
 9. Ralph Agent archives: inprogress/ → complete/<feature>/
         │
         ▼
-10. Orchestrator cleans up worktree, launches next wave
+10. Ravtown Mayor cleans up worktree, launches next wave
 ```
 
 ## Port Isolation
@@ -193,6 +193,45 @@ Key rules:
 - Every story needs `"Typecheck passes"` as a criterion
 - UI stories need `"Verify in browser using dev-browser skill"`
 
+## Usage
+
+### 1. Create PRDs
+
+Use the `/prd` skill to generate PRDs for each feature you want to build:
+
+```
+/prd Add a task priority system with high/medium/low levels
+```
+
+This creates `docs/prds/todo/prd-<date>-<feature>.md` for each feature. Repeat for as many features as you need.
+
+### 2. Run Ravtown Mayor
+
+Launch the orchestrator agent to implement all pending PRDs:
+
+```bash
+copilot --agent ravtown-mayor
+```
+
+Then prompt it with:
+
+```
+Complete all todo PRDs
+```
+
+The mayor takes it from there — preparing branches, launching parallel agents, and merging PRs until every PRD is done.
+
+### Manual / Single Feature
+
+If you prefer to run a single feature manually:
+
+```bash
+.github/skills/ralph-loop/scripts/ralph.sh \
+  --prd docs/prds/inprogress/prd-2026-03-15-feature.json \
+  --tool copilot \
+  10
+```
+
 ## Adopting Ralph in Your Project
 
 1. **Copy this repo's structure** into your project:
@@ -209,21 +248,9 @@ Key rules:
 
 2. **Fill in `.github/copilot-instructions.md`** with your project's tech stack, commands, and architecture
 
-3. **Create a PRD** using the `/prd` skill or manually write `docs/prds/todo/prd-<date>-<feature>.md`
+3. **Create PRDs** using the `/prd` skill
 
-4. **Convert to Ralph format** using the `/ralph-prd` skill → produces `prd-<date>-<feature>.json`
-
-5. **Run manually** (single feature):
-   ```bash
-   .github/skills/ralph-loop/scripts/ralph.sh \
-     --prd docs/prds/inprogress/prd-2026-03-15-feature.json \
-     --tool copilot \
-     10
-   ```
-
-6. **Or use the orchestrator** (multiple features in parallel):
-   - Place multiple `prd-*.md` files in `docs/prds/todo/`
-   - Invoke the ralph-orchestrator agent
+4. **Run** `copilot --agent ravtown-mayor` and prompt: "Complete all todo PRDs"
 
 ## Supported AI Tools
 
