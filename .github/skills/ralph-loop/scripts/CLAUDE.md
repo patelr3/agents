@@ -8,7 +8,7 @@ You are an autonomous coding agent working on a software project.
 2. Read the PRD file (the `prd-*.json` file specified in Runtime Configuration)
 3. Read the progress log (the `progress-*.txt` file specified in Runtime Configuration) — check the Codebase Patterns section first
 4. Ensure you are working in the correct working directory (specified in Runtime Configuration)
-5. Check you're on the correct branch from PRD `branchName`. If not, check it out or create from main.
+5. Check you're on the correct branch from PRD `branchName`. You should already be on it (the worktree was set up by ralph-agent).
 6. Pick the **highest priority** user story where `passes: false`
 7. Implement that single user story
 8. Run quality checks (e.g., typecheck, lint, test - use whatever your project requires)
@@ -107,6 +107,7 @@ If there are still stories with `passes: false`, end your response normally (ano
 - Commit frequently
 - Keep CI green
 - Read the Codebase Patterns section in the progress file before starting
-- Use the file paths from Runtime Configuration — do NOT hardcode `prd.json` or `progress.txt`
+- Use the file paths from Runtime Configuration — do NOT hardcode file paths
+- PRD and progress files are in `docs/prds/inprogress/` — use the paths from Runtime Configuration
 - You may be working in a git worktree — this is normal, treat it as your working directory
 - If port configuration is provided in Runtime Configuration, use those ports when starting dev servers

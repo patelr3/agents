@@ -1,5 +1,5 @@
 ---
-name: ralph
+name: ralph-prd
 description: "Convert PRDs to prd.json format for the Ralph autonomous agent system. Use when you have an existing PRD and need to convert it to Ralph's JSON format. Triggers on: convert this prd, turn this into ralph format, create prd.json from this, ralph json."
 user-invokable: true
 ---
@@ -12,11 +12,11 @@ Converts existing PRDs to the prd.json format that Ralph uses for autonomous exe
 
 ## The Job
 
-Take a PRD (markdown file or text) and convert it to a branch-suffixed `prd-<branch-suffix>.json` in your ralph directory (scripts/ralph).
+Take a PRD markdown file from `docs/prds/inprogress/` and convert it to a `prd-<date>-<feature-name>.json` in the same directory.
 
-The branch suffix is derived from the `branchName` field with the `ralph/` prefix stripped. For example, `branchName: "ralph/task-status"` produces `prd-task-status.json`.
+The suffix is derived from the source PRD filename. For example, `prd-2026-03-15-task-status.md` produces `prd-2026-03-15-task-status.json`.
 
-Also initialize a corresponding `progress-<branch-suffix>.txt` file.
+Also initialize a corresponding `progress-<date>-<feature-name>.txt` file in the same directory.
 
 ---
 
@@ -127,10 +127,11 @@ Frontend stories are NOT complete until visually verified. Ralph will use the de
 2. **IDs**: Sequential (US-001, US-002, etc.)
 3. **Priority**: Based on dependency order, then document order
 4. **All stories**: `passes: false` and empty `notes`
-5. **branchName**: Derive from feature name, kebab-case, prefixed with `ralph/`
+5. **branchName**: Derive from feature name (without date), kebab-case, prefixed with `ralph/`. For example, source file `prd-2026-03-15-task-status.md` → `branchName: "ralph/task-status"`
 6. **Always add**: "Typecheck passes" to every story's acceptance criteria
-7. **dependsOn**: Read the `## Dependencies` section from the source PRD. Map each listed PRD filename to its corresponding branch name (e.g., `prd-friend-search.md` → `ralph/friend-search`). If no dependencies, use an empty array `[]`.
-8. **Output filename**: `prd-<branch-suffix>.json` where `<branch-suffix>` is the branchName with `ralph/` stripped (e.g., `prd-task-status.json`)
+7. **dependsOn**: Read the `## Dependencies` section from the source PRD. Map each listed PRD filename to its corresponding branch name (e.g., `prd-2026-03-15-friend-search.md` → `ralph/friend-search`). If no dependencies, use an empty array `[]`.
+8. **Output filename**: `prd-<date>-<feature-name>.json` — matching the source PRD filename suffix (e.g., `prd-2026-03-15-task-status.md` → `prd-2026-03-15-task-status.json`)
+9. **Output location**: Same directory as the source PRD (`docs/prds/inprogress/`)
 
 ---
 
@@ -155,7 +156,7 @@ Each is one focused change that can be completed and verified independently.
 
 ## Example
 
-**Input PRD:**
+**Input PRD** (`docs/prds/inprogress/prd-2026-03-15-task-status.md`):
 ```markdown
 # Task Status Feature
 
@@ -168,7 +169,7 @@ Add ability to mark tasks with different statuses.
 - Persist status in database
 ```
 
-**Output `prd-task-status.json`:**
+**Output** (`docs/prds/inprogress/prd-2026-03-15-task-status.json`):
 ```json
 {
   "project": "TaskApp",
@@ -240,17 +241,18 @@ Add ability to mark tasks with different statuses.
 
 ## File Naming Convention
 
-Each PRD gets its own uniquely-named files based on the branch name:
+Each PRD gets its own uniquely-named files. The suffix matches the source PRD filename pattern `<date>-<feature-name>`:
 
-- **PRD file**: `scripts/ralph/prd-<branch-suffix>.json`
-- **Progress file**: `scripts/ralph/progress-<branch-suffix>.txt`
+- **PRD JSON file**: `docs/prds/inprogress/prd-<date>-<feature-name>.json`
+- **Progress file**: `docs/prds/inprogress/progress-<date>-<feature-name>.txt`
 
-Where `<branch-suffix>` is the `branchName` with the `ralph/` prefix stripped.
+Where `<date>` is `YYYY-MM-DD` and `<feature-name>` is kebab-case.
 
 **Example:**
+- Source PRD: `docs/prds/inprogress/prd-2026-03-15-task-status.md`
+- PRD JSON: `docs/prds/inprogress/prd-2026-03-15-task-status.json`
+- Progress: `docs/prds/inprogress/progress-2026-03-15-task-status.txt`
 - Branch: `ralph/task-status`
-- PRD: `scripts/ralph/prd-task-status.json`
-- Progress: `scripts/ralph/progress-task-status.txt`
 
 **After saving the prd.json, initialize the progress file:**
 ```
@@ -272,5 +274,6 @@ Before writing prd.json, verify:
 - [ ] Acceptance criteria are verifiable (not vague)
 - [ ] No story depends on a later story
 - [ ] `dependsOn` correctly maps PRD dependencies to branch names
-- [ ] Output file is named `prd-<branch-suffix>.json` (not `prd.json`)
-- [ ] Progress file `progress-<branch-suffix>.txt` is initialized
+- [ ] Output file is named `prd-<date>-<feature-name>.json` (matching source PRD suffix)
+- [ ] Output file is in `docs/prds/inprogress/`
+- [ ] Progress file `progress-<date>-<feature-name>.txt` is initialized in `docs/prds/inprogress/`

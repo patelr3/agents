@@ -7,13 +7,15 @@ Ralph is a multi-agent orchestration system that autonomously implements feature
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                     Ralph Orchestrator                           │
-│  Scans PRDs → builds dependency graph → launches agent waves    │
+│  Scans PRDs → builds dependency graph → prepares branches        │
+│  → launches agent waves                                          │
 └────────┬────────────────────────────────────────────────────────┘
          │
          ├─ Ralph Agent #1 (port offset 10)
-         │  ├─ reads prd-feature-a.json
-         │  ├─ runs ralph.sh → iterates through stories
-         │  └─ creates PR → merges → signals PRD-COMPLETE
+         │  ├─ creates worktree from prepared branch
+         │  ├─ auto-runs /ralph-prd → converts PRD to JSON
+         │  ├─ runs /ralph-loop → iterates through stories
+         │  └─ creates PR → merges → archives PRD → signals PRD-COMPLETE
          │
          ├─ Ralph Agent #2 (port offset 20)
          │  └─ same flow for another independent feature
@@ -24,7 +26,7 @@ Ralph is a multi-agent orchestration system that autonomously implements feature
 
 ### The Loop
 
-Each Ralph agent runs a **loop** (`ralph.sh`) that spawns a fresh AI coding session per iteration:
+Each Ralph agent runs a **loop** (`ralph.sh` via the `/ralph-loop` skill) that spawns a fresh AI coding session per iteration:
 
 1. **Read PRD** — pick the highest-priority story where `passes: false`
 2. **Implement** — make the code changes for that one story
@@ -40,8 +42,8 @@ Each Ralph agent runs a **loop** (`ralph.sh`) that spawns a fresh AI coding sess
 
 | Agent | Role |
 |---|---|
-| [**ralph-agent**](.github/agents/ralph-agent.md) | Executes a single PRD end-to-end. Sets up a git worktree, runs `ralph.sh`, monitors completion. |
-| [**ralph-orchestrator**](.github/agents/ralph-orchestrator.md) | Fleet manager. Scans for PRD files, builds a dependency DAG, launches agents in parallel waves, cleans up on completion. |
+| [**ralph-agent**](.github/agents/ralph-agent.md) | Executes a single PRD end-to-end. Creates worktree from a prepared branch, auto-runs `/ralph-prd` to convert the PRD, runs `/ralph-loop` to implement stories, archives completed work. |
+| [**ralph-orchestrator**](.github/agents/ralph-orchestrator.md) | Fleet manager. Scans `docs/prds/todo/` for PRD files, builds a dependency DAG, prepares isolated feature branches from HEAD, launches agents in parallel waves, cleans up on completion. |
 
 ### Skills (`/.github/skills/`)
 
@@ -49,16 +51,17 @@ Reusable capabilities that agents (or humans) can invoke:
 
 | Skill | Purpose |
 |---|---|
-| [**prd**](.github/skills/prd/SKILL.md) | Generates a Product Requirements Document from a feature description. Asks clarifying questions, outputs structured markdown to `docs/prds/`. |
-| [**ralph**](.github/skills/ralph/SKILL.md) | Converts a markdown PRD into Ralph's `prd-<suffix>.json` format. Ensures stories are right-sized (one iteration each), properly ordered, and have verifiable acceptance criteria. |
+| [**prd**](.github/skills/prd/SKILL.md) | Generates a Product Requirements Document from a feature description. Asks clarifying questions, outputs structured markdown to `docs/prds/todo/`. |
+| [**ralph-prd**](.github/skills/ralph-prd/SKILL.md) | Converts a markdown PRD into Ralph's `prd-<date>-<feature>.json` format. Ensures stories are right-sized (one iteration each), properly ordered, and have verifiable acceptance criteria. |
+| [**ralph-loop**](.github/skills/ralph-loop/SKILL.md) | Runs the Ralph execution loop (`ralph.sh`). Iterates through PRD user stories, spawning a fresh AI session per iteration to implement, test, and commit each story. |
 | [**dev-browser**](.github/skills/dev-browser/SKILL.md) | Browser automation via Playwright. Agents use this to visually verify UI changes — navigate pages, click elements, take screenshots. |
 
-### Scripts (`/scripts/ralph/`)
+### Scripts (inside `/ralph-loop` skill)
 
 | File | Purpose |
 |---|---|
-| [**ralph.sh**](scripts/ralph/ralph.sh) | The core execution loop. Invokes an AI tool (Copilot, Claude, or AMP) repeatedly, injecting the PRD context each iteration. Handles worktree setup, port isolation, and completion detection. |
-| [**CLAUDE.md**](scripts/ralph/CLAUDE.md) | The prompt template injected into each iteration. Tells the AI agent how to read the PRD, implement a story, run checks, commit, and log progress. |
+| [**ralph.sh**](.github/skills/ralph-loop/scripts/ralph.sh) | The core execution loop. Invokes an AI tool (Copilot, Claude, or AMP) repeatedly, injecting the PRD context each iteration. Handles port isolation and completion detection. |
+| [**CLAUDE.md**](.github/skills/ralph-loop/scripts/CLAUDE.md) | The prompt template injected into each iteration. Tells the AI agent how to read the PRD, implement a story, run checks, commit, and log progress. |
 
 ### Prompts (`/.github/prompts/`)
 
@@ -75,38 +78,79 @@ Reusable capabilities that agents (or humans) can invoke:
 
 These symlinks ensure that tools like GitHub Copilot, Claude Code, and other AI agents discover the project instructions regardless of which filename convention they look for.
 
+## PRD Lifecycle
+
+PRDs flow through three stages, tracked by directory location:
+
+```
+docs/prds/
+├── todo/           ← PRDs waiting to be worked on
+├── inprogress/     ← PRD currently being implemented (per branch)
+└── complete/       ← Completed PRDs, organized by feature
+    └── <feature-name>/
+```
+
+### Naming Convention
+
+All PRD-related files use the pattern `<YYYY-MM-DD>-<feature-name>`:
+
+| File Type | Pattern | Example |
+|---|---|---|
+| PRD markdown | `prd-<date>-<feature>.md` | `prd-2026-03-15-task-status.md` |
+| PRD JSON | `prd-<date>-<feature>.json` | `prd-2026-03-15-task-status.json` |
+| Progress file | `progress-<date>-<feature>.txt` | `progress-2026-03-15-task-status.txt` |
+| Git branch | `ralph/<feature>` (no date) | `ralph/task-status` |
+
+The date is set when the `/prd` skill first creates the PRD and carries through the entire lifecycle.
+
 ## Workflow: Feature → Merged PR
 
 ```
 1. User describes a feature
         │
         ▼
-2. PRD Skill generates docs/prds/prd-feature.md
+2. /prd skill generates docs/prds/todo/prd-2026-03-15-feature.md
         │
         ▼
-3. Ralph Skill converts to scripts/ralph/prd-feature.json
+3. Orchestrator discovers PRDs in docs/prds/todo/
         │
         ▼
-4. Orchestrator discovers prd-feature.json
+4. Orchestrator prepares branch from HEAD:
+   ┌─────────────────────────────────────────┐
+   │  Create branch ralph/<feature> from HEAD │
+   │  Remove other PRDs from docs/prds/todo/  │
+   │  Commit and push                         │
+   └─────────────────────────────────────────┘
         │
         ▼
 5. Orchestrator launches Ralph Agent in background
         │
         ▼
-6. ralph.sh iterates:
-   ┌─────────────────────────────────────┐
-   │  Iteration 1: US-001 (schema)       │
-   │  Iteration 2: US-002 (backend)      │
-   │  Iteration 3: US-003 (UI)           │
-   │  Iteration 4: US-004 (filters)      │
-   │  Iteration 5: All pass → create PR  │
-   └─────────────────────────────────────┘
+6. Ralph Agent sets up:
+   ┌─────────────────────────────────────────┐
+   │  Create worktree from prepared branch    │
+   │  Move PRD: todo/ → inprogress/           │
+   │  Auto-run /ralph-prd → creates JSON      │
+   └─────────────────────────────────────────┘
         │
         ▼
-7. PR auto-merges to main
+7. Ralph Agent runs /ralph-loop:
+   ┌─────────────────────────────────────────┐
+   │  Iteration 1: US-001 (schema)           │
+   │  Iteration 2: US-002 (backend)          │
+   │  Iteration 3: US-003 (UI)              │
+   │  Iteration 4: US-004 (filters)          │
+   │  Iteration 5: All pass → create PR      │
+   └─────────────────────────────────────────┘
         │
         ▼
-8. Orchestrator archives PRD, cleans up worktree
+8. PR auto-merges to main
+        │
+        ▼
+9. Ralph Agent archives: inprogress/ → complete/<feature>/
+        │
+        ▼
+10. Orchestrator cleans up worktree, launches next wave
 ```
 
 ## Port Isolation
@@ -156,24 +200,29 @@ Key rules:
    .github/agents/
    .github/skills/
    .github/prompts/
-   scripts/ralph/
+   docs/prds/todo/
+   docs/prds/inprogress/
+   docs/prds/complete/
    AGENTS.md → .github/copilot-instructions.md
    CLAUDE.md → .github/copilot-instructions.md
    ```
 
 2. **Fill in `.github/copilot-instructions.md`** with your project's tech stack, commands, and architecture
 
-3. **Create a PRD** using the `prd` skill or manually write `docs/prds/prd-feature.md`
+3. **Create a PRD** using the `/prd` skill or manually write `docs/prds/todo/prd-<date>-<feature>.md`
 
-4. **Convert to Ralph format** using the `ralph` skill → produces `scripts/ralph/prd-feature.json`
+4. **Convert to Ralph format** using the `/ralph-prd` skill → produces `prd-<date>-<feature>.json`
 
 5. **Run manually** (single feature):
    ```bash
-   ./scripts/ralph/ralph.sh --prd prd-feature.json --tool copilot 10
+   .github/skills/ralph-loop/scripts/ralph.sh \
+     --prd docs/prds/inprogress/prd-2026-03-15-feature.json \
+     --tool copilot \
+     10
    ```
 
 6. **Or use the orchestrator** (multiple features in parallel):
-   - Place multiple `prd-*.json` files in `scripts/ralph/`
+   - Place multiple `prd-*.md` files in `docs/prds/todo/`
    - Invoke the ralph-orchestrator agent
 
 ## Supported AI Tools
