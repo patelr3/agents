@@ -1,4 +1,4 @@
-# Ralph — Autonomous Agent System for Feature Development
+# RaV Town — Read-and-Vibe Town
 
 Ralph is a multi-agent orchestration system that autonomously implements features from Product Requirements Documents (PRDs). It coordinates parallel AI agents, each working in isolated git worktrees, to go from specification to merged pull request without human intervention.
 
