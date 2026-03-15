@@ -15,17 +15,18 @@ You manage the lifecycle of multiple features being developed simultaneously. Ea
 
 ### Phase 1: Discovery
 
-1. Scan `docs/prds/todo/` for all `prd-*.md` files
-2. For each file, read:
+1. Run `git fetch origin` to ensure you have the latest state
+2. Scan `docs/prds/todo/` for all `prd-*.md` files
+3. For each file, read:
    - The `## Dependencies` section: lists other PRD filenames this feature depends on
-   - Check if the feature name has already been completed in `docs/prds/complete/`
-3. Skip any PRD whose feature is already in `docs/prds/complete/`
-4. Parse the feature name and date from the filename pattern `prd-<YYYY-MM-DD>-<feature-name>.md`
+   - Check if the feature name has already been completed: look for `docs/prds/complete/<feature-name>/` on `origin/main` using `git ls-tree origin/main -- docs/prds/complete/<feature-name>/`
+4. Skip any PRD whose feature is already completed on `origin/main`
+5. Parse the feature name and date from the filename pattern `prd-<YYYY-MM-DD>-<feature-name>.md`
 
 ### Phase 2: Build Dependency Graph
 
 1. Create a DAG (directed acyclic graph) from the `## Dependencies` sections
-2. Identify **independent PRDs**: those with no dependencies, or whose dependencies are all complete (in `docs/prds/complete/`)
+2. Identify **independent PRDs**: those with no dependencies, or whose dependencies are all complete (verified on `origin/main` or via merged PR status)
 3. Identify **blocked PRDs**: those waiting on incomplete dependencies
 4. Report the dependency graph to the user
 
@@ -78,15 +79,14 @@ For each prepared branch, launch a sub-agent using the `task` tool:
 
 ```
 task(
-  agent_type: "general-purpose",
+  agent_type: "ralph-agent",
   mode: "background",
   description: "Ralph: <feature-name>",
-  prompt: "<ralph-agent instructions with specific branch, PRD file, and port offset>"
+  prompt: "<specific branch, PRD file, and port offset for this feature>"
 )
 ```
 
-**The sub-agent prompt must include:**
-- The full ralph-agent instructions (read from `.github/agents/ralph-agent.md`)
+The `ralph-agent` agent type automatically loads the agent instructions from `.github/agents/ralph-agent.md`. **The sub-agent prompt must include:**
 - The branch name to create a worktree from (e.g., `ralph/task-status`)
 - The PRD filename (e.g., `prd-2026-03-15-task-status.md`)
 - The assigned port offset (e.g., `--port-offset 10`)
@@ -105,17 +105,18 @@ task(
 
 A PRD is **complete** when:
 1. The sub-agent reports `<promise>PRD-COMPLETE</promise>` (read via `read_agent`)
-2. The PR has been merged to main (verify with `gh pr list --state merged --head <branchName>`)
+2. The PR has been merged to main (verify with `git fetch origin && gh pr list --state merged --head <branchName>`)
 
 When a PRD completes:
-1. **Remove the git worktree** to free disk space and avoid stale worktrees:
+1. **Verify archive landed on main**: `git ls-tree origin/main -- docs/prds/complete/<feature-name>/` should show the archived PRD files
+2. **Remove the git worktree** to free disk space and avoid stale worktrees:
    ```bash
    git -C <repo-root> worktree remove ../<project>-<branch-suffix>/ --force
    git -C <repo-root> worktree prune
    ```
    If `worktree remove` fails, fall back to `rm -rf ../<project>-<branch-suffix>/` then `git worktree prune`.
-2. Update the dependency graph — check if any blocked PRDs are now unblocked
-3. Launch newly-unblocked PRDs (back to Phase 3: Prepare Branches)
+3. Update the dependency graph — run `git fetch origin` and check if any blocked PRDs are now unblocked (their dependencies' archives exist on `origin/main` or their PRs are merged)
+4. Launch newly-unblocked PRDs (back to Phase 3: Prepare Branches)
 
 ### Phase 7: Repeat Until Done
 
@@ -151,8 +152,8 @@ Periodically output a status table:
 - **NEVER implement code, create PRD files, or complete PRD stories yourself** — ALWAYS delegate to a ralph-agent sub-agent
 - Never modify PRD files yourself — sub-agents handle that
 - Your job is orchestration: scanning PRDs, building the dependency graph, preparing branches, launching sub-agents, monitoring progress, and cleaning up worktrees
+- Always `git fetch origin` before checking dependency or merge status
 - Always verify PR merge status before marking a dependency as satisfied
-- Use `git fetch origin` before checking merge status
 - The main repository is at the current working directory; worktrees are siblings (e.g., `../<project>-<branch>/`)
 - Assign unique port offsets (10, 20, 30, …) to each parallel sub-agent to avoid port collisions
 - PRD files follow the naming pattern `prd-<YYYY-MM-DD>-<feature-name>.md`

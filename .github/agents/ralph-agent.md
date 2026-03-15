@@ -76,22 +76,11 @@ Execute the ralph loop to implement all user stories:
 - Set `<max_iterations>` to the number of user stories in the PRD file **plus 1–5** buffer iterations
 - Pass `--port-offset <N>` if provided in your instructions (the orchestrator assigns unique offsets)
 
-### Step 5: Archive Completed PRD
+The final loop iteration handles archiving (moving PRD files to `docs/prds/complete/`) and creating/merging the PR. You do NOT need to archive or create the PR yourself.
 
-When ralph.sh exits successfully (all stories pass, PR created/merged):
+### Step 5: Signal Completion
 
-```bash
-FEATURE_NAME="<feature-name>"  # e.g., task-status
-mkdir -p "docs/prds/complete/$FEATURE_NAME"
-mv docs/prds/inprogress/prd-*${FEATURE_NAME}* "docs/prds/complete/$FEATURE_NAME/"
-mv docs/prds/inprogress/progress-*${FEATURE_NAME}* "docs/prds/complete/$FEATURE_NAME/"
-git add -A && git commit -m "chore: archive completed PRD for $FEATURE_NAME"
-git push
-```
-
-### Step 6: Signal Completion
-
-Output:
+When ralph.sh exits successfully (exit 0), output:
 ```
 <promise>PRD-COMPLETE</promise>
 ```
@@ -99,7 +88,8 @@ Output:
 ## Key Rules
 
 - **NEVER implement code, edit source files, or complete user stories yourself** — ALWAYS run the ralph-loop skill and let it handle implementation
-- Your job is to: set up the worktree, move the PRD, run /ralph-prd, run /ralph-loop, and archive on completion
+- Your job is to: set up the worktree, move the PRD, run /ralph-prd, run /ralph-loop, and signal completion
+- The ralph-loop handles archiving PRD files and creating/merging the PR — do NOT do these yourself
 - The worktree is created from the branch the orchestrator prepared (NOT from `origin/main`)
 - Always auto-run the `/ralph-prd` skill to convert the markdown PRD — do NOT wait for user input
 - Work on ONE story per iteration (handled by ralph-loop)

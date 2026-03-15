@@ -46,31 +46,20 @@ If you discover a **reusable pattern** that future iterations should know, add i
 
 Only add patterns that are **general and reusable**, not story-specific details.
 
-## Update copilot-instructions.md Files
+## Update copilot-instructions.md (Sparingly)
 
-Before committing, check if any edited files have learnings worth preserving in copilot-instructions.md files:
+The progress file is the **primary** place for learnings — it captures iteration-specific context, story details, and feature-scoped patterns.
 
-1. **Identify directories with edited files** - Look at which directories you modified
-2. **Check for existing copilot-instructions.md** - There should be one in `.github/copilot-instructions.md`
-3. **Add valuable learnings** - If you discovered something future developers/agents should know:
-   - API patterns or conventions specific to that module
-   - Gotchas or non-obvious requirements
-   - Dependencies between files
-   - Testing approaches for that area
-   - Configuration or environment requirements
-
-**Examples of good copilot-instructions.md additions:**
+Only update `.github/copilot-instructions.md` for **project-wide patterns** that apply beyond this feature and would benefit all future work across the entire codebase. Examples:
 - "When modifying X, also update Y to keep them in sync"
 - "This module uses pattern Z for all API calls"
 - "Tests require the dev server running on PORT 3000"
-- "Field names must match the template exactly"
 
-**Do NOT add:**
-- Story-specific implementation details
+**Do NOT add** to copilot-instructions.md:
+- Feature-specific or story-specific details (put these in the progress file)
 - Temporary debugging notes
 - Information already in progress.txt
-
-Only update copilot-instructions.md if you have **genuinely reusable knowledge** that would help future work in that directory.
+- Patterns that only apply to the current feature
 
 ## Quality Requirements
 
@@ -95,9 +84,20 @@ After completing a user story, check if ALL stories have `passes: true`.
 
 If ALL stories are complete and passing:
 1. Push all changes to the remote branch
-2. Create a pull request against main using `gh pr create` with a descriptive title listing all completed stories
-3. Enable auto-merge on the PR using `gh pr merge --auto --squash`
-4. Reply with: <promise>PRD-COMPLETE</promise>
+2. **Archive the PRD**: move all PRD-related files from `docs/prds/inprogress/` to `docs/prds/complete/<feature-name>/`:
+   ```bash
+   FEATURE_NAME="<feature-name>"  # derive from branchName: ralph/<feature> → <feature>
+   mkdir -p "docs/prds/complete/$FEATURE_NAME"
+   mv docs/prds/inprogress/prd-*${FEATURE_NAME}* "docs/prds/complete/$FEATURE_NAME/"
+   mv docs/prds/inprogress/progress-*${FEATURE_NAME}* "docs/prds/complete/$FEATURE_NAME/"
+   git add -A && git commit -m "chore: archive completed PRD for $FEATURE_NAME"
+   git push
+   ```
+3. Create a pull request against main using `gh pr create --base main` with a descriptive title listing all completed stories
+4. Enable auto-merge: `gh pr merge --auto --squash --delete-branch`
+5. Reply with: <promise>PRD-COMPLETE</promise>
+
+The archive commit **must** happen before the PR is created so that it is included in the PR diff and lands on main when merged.
 
 If there are still stories with `passes: false`, end your response normally (another iteration will pick up the next story).
 

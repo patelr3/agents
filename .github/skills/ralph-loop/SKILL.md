@@ -55,7 +55,7 @@ Each iteration spawns a fresh AI session that:
 6. Commits with message: `feat: [US-XXX] - Story Title`
 7. Marks the story as `passes: true` in the PRD JSON
 8. Appends learnings to the progress file
-9. Checks if all stories pass — if so, creates PR and outputs `<promise>PRD-COMPLETE</promise>`
+9. Checks if all stories pass — if so, archives PRD to `complete/`, creates PR, enables auto-merge, and outputs `<promise>PRD-COMPLETE</promise>`
 
 ---
 
@@ -72,6 +72,8 @@ The script expects:
 
 The loop exits successfully (exit 0) when:
 - All stories have `passes: true`
+- The PRD has been archived to `docs/prds/complete/<feature>/`
+- A PR has been created with auto-merge enabled
 - The output contains `<promise>PRD-COMPLETE</promise>`
 
 The loop exits with failure (exit 1) when:

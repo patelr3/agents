@@ -64,7 +64,7 @@ Each Ralph agent runs a **loop** (`ralph.sh` via the `/ralph-loop` skill) that s
 4. **Commit** — `feat: [US-001] - Story Title`
 5. **Update PRD** — mark story as `passes: true`
 6. **Log learnings** — append to progress file for future iterations
-7. **Repeat** until all stories pass, then create & merge PR
+7. **Repeat** until all stories pass, then archive PRD, create & merge PR
 
 ## Components
 
@@ -72,7 +72,7 @@ Each Ralph agent runs a **loop** (`ralph.sh` via the `/ralph-loop` skill) that s
 
 | Agent | Role |
 |---|---|
-| [**ralph-agent**](.github/agents/ralph-agent.md) | Executes a single PRD end-to-end. Creates worktree from a prepared branch, auto-runs `/ralph-prd` to convert the PRD, runs `/ralph-loop` to implement stories, archives completed work. |
+| [**ralph-agent**](.github/agents/ralph-agent.md) | Executes a single PRD end-to-end. Creates worktree from a prepared branch, auto-runs `/ralph-prd` to convert the PRD, runs `/ralph-loop` to implement stories. The loop handles archiving and PR creation. |
 | [**ravtown-mayor**](.github/agents/ravtown-mayor.md) | Fleet manager. Scans `docs/prds/todo/` for PRD files, builds a dependency DAG, prepares isolated feature branches from HEAD, launches agents in parallel waves, cleans up on completion. |
 
 ### Skills (`/.github/skills/`)
@@ -170,17 +170,15 @@ The date is set when the `/prd` skill first creates the PRD and carries through 
    │  Iteration 2: US-002 (backend)          │
    │  Iteration 3: US-003 (UI)              │
    │  Iteration 4: US-004 (filters)          │
-   │  Iteration 5: All pass → create PR      │
+   │  Iteration 5: All pass → archive PRD    │
+   │               → create & merge PR       │
    └─────────────────────────────────────────┘
         │
         ▼
-8. PR auto-merges to main
+8. PR auto-merges to main (includes archived PRD)
         │
         ▼
-9. Ralph Agent archives: inprogress/ → complete/<feature>/
-        │
-        ▼
-10. Ravtown Mayor cleans up worktree, launches next wave
+9. Ravtown Mayor cleans up worktree, launches next wave
 ```
 
 ## Port Isolation
