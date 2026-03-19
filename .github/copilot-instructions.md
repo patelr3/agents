@@ -57,7 +57,9 @@ Document project-specific conventions:
 
 This project uses the [Ralph agent system](.github/skills/ralph-loop/) for autonomous feature development. See the [agents README](README.md) for details on how agents, skills, and the orchestrator interact.
 
-### PRD Locations
-- **Todo**: `docs/prds/todo/` — PRDs waiting to be worked on
-- **In Progress**: `docs/prds/inprogress/` — PRD currently being implemented
-- **Complete**: `docs/prds/complete/<feature-name>/` — Archived completed PRDs
+### PRD Location & Status
+- **Location**: `docs/prds/` — all PRD files live here (flat structure)
+- **Status tracking**: YAML frontmatter `status` field in each PRD markdown file
+  - `status: todo` — waiting to be worked on
+  - `status: inprogress` — currently being implemented
+  - `status: complete` — implementation finished and merged

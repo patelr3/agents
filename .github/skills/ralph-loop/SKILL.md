@@ -26,7 +26,7 @@ Execute the `ralph.sh` script from this skill's `scripts/` directory. The script
 
 | Parameter | Required | Default | Description |
 |---|---|---|---|
-| `--prd <file>` | Yes | — | Path to the PRD JSON file (e.g., `docs/prds/inprogress/prd-2026-03-15-task-status.json`) |
+| `--prd <file>` | Yes | — | Path to the PRD JSON file (e.g., `docs/prds/prd-2026-03-15-task-status.json`) |
 | `--tool <name>` | No | `copilot` | AI backend: `copilot`, `claude`, or `amp` |
 | `--port-offset N` | No | — | Port offset for parallel isolation (API=3001+N, Web=3000+N) |
 | `max_iterations` | No | `10` | Maximum loop iterations before aborting |
@@ -36,7 +36,7 @@ Execute the `ralph.sh` script from this skill's `scripts/` directory. The script
 ```bash
 # Run with Copilot (default), 12 iterations max
 .github/skills/ralph-loop/scripts/ralph.sh \
-  --prd docs/prds/inprogress/prd-2026-03-15-task-status.json \
+  --prd docs/prds/prd-2026-03-15-task-status.json \
   --port-offset 10 \
   12
 ```
@@ -55,15 +55,15 @@ Each iteration spawns a fresh AI session that:
 6. Commits with message: `feat: [US-XXX] - Story Title`
 7. Marks the story as `passes: true` in the PRD JSON
 8. Appends learnings to the progress file
-9. Checks if all stories pass — if so, archives PRD to `complete/`, creates PR, enables auto-merge, and outputs `<promise>PRD-COMPLETE</promise>`
+9. Checks if all stories pass — if so, updates PRD status to `complete`, creates PR, enables auto-merge, and outputs `<promise>PRD-COMPLETE</promise>`
 
 ---
 
 ## File Expectations
 
 The script expects:
-- **PRD JSON**: The file passed via `--prd` (e.g., `docs/prds/inprogress/prd-2026-03-15-task-status.json`)
-- **Progress file**: Derived from the PRD filename — `prd-` prefix replaced with `progress-`, `.json` replaced with `.txt` (e.g., `docs/prds/inprogress/progress-2026-03-15-task-status.txt`)
+- **PRD JSON**: The file passed via `--prd` (e.g., `docs/prds/prd-2026-03-15-task-status.json`)
+- **Progress file**: Derived from the PRD filename — `prd-` prefix replaced with `progress-`, `.json` replaced with `.txt` (e.g., `docs/prds/progress-2026-03-15-task-status.txt`)
 - **CLAUDE.md prompt**: Located at `.github/skills/ralph-loop/scripts/CLAUDE.md` (same directory as `ralph.sh`)
 
 ---
@@ -72,7 +72,7 @@ The script expects:
 
 The loop exits successfully (exit 0) when:
 - All stories have `passes: true`
-- The PRD has been archived to `docs/prds/complete/<feature>/`
+- The PRD markdown frontmatter has been updated to `status: complete`
 - A PR has been created with auto-merge enabled
 - The output contains `<promise>PRD-COMPLETE</promise>`
 

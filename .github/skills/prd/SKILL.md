@@ -15,7 +15,7 @@ Create detailed Product Requirements Documents that are clear, actionable, and s
 1. Receive a feature description from the user
 2. Ask 3-5 essential clarifying questions (with lettered options)
 3. Generate a structured PRD based on answers
-4. Save to `docs/prds/todo/prd-[YYYY-MM-DD]-[feature-name].md` (date is today's date)
+4. Save to `docs/prds/prd-[YYYY-MM-DD]-[feature-name].md` (date is today's date)
 
 **Important:** Do NOT start implementing. Just create the PRD.
 
@@ -58,7 +58,15 @@ This lets users respond with "1A, 2C, 3B" for quick iteration. Remember to inden
 
 ## Step 2: PRD Structure
 
-Generate the PRD with these sections:
+The PRD file must start with YAML frontmatter containing the status field:
+
+```yaml
+---
+status: todo
+---
+```
+
+Then generate the PRD with these sections:
 
 ### 1. Introduction/Overview
 Brief description of the feature and the problem it solves.
@@ -150,7 +158,7 @@ The PRD reader may be a junior developer or AI agent. Therefore:
 ## Output
 
 - **Format:** Markdown (`.md`)
-- **Location:** `docs/prds/todo/`
+- **Location:** `docs/prds/`
 - **Filename:** `prd-[YYYY-MM-DD]-[feature-name].md` (date is today, feature-name is kebab-case)
 
 ---
@@ -158,6 +166,9 @@ The PRD reader may be a junior developer or AI agent. Therefore:
 ## Example PRD
 
 ```markdown
+---
+status: todo
+---
 # PRD: Task Priority System
 
 ## Introduction
@@ -258,4 +269,4 @@ Before saving the PRD:
 - [ ] Functional requirements are numbered and unambiguous
 - [ ] Non-goals section defines clear boundaries
 - [ ] Dependencies section lists prerequisite PRDs (or "None")
-- [ ] Saved to `docs/prds/todo/prd-[YYYY-MM-DD]-[feature-name].md`
+- [ ] Saved to `docs/prds/prd-[YYYY-MM-DD]-[feature-name].md`
