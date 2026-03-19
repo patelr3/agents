@@ -1,0 +1,38 @@
+{
+  "name": "rav-town-marketplace",
+  "owner": {
+    "name": "patelr3",
+    "email": "patelr3@users.noreply.github.com"
+  },
+  "metadata": {
+    "description": "RaV Town — Multi-agent orchestration for autonomous feature development from PRDs",
+    "version": "1.0.0",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "rav-town",
+      "description": "Multi-agent orchestration system for autonomous feature development. Includes PRD generation, story-by-story implementation loops, git worktree isolation, and fleet management.",
+      "version": "1.0.0",
+      "author": {
+        "name": "patelr3"
+      },
+      "source": "./plugins/rav-town",
+      "category": "developer-tools",
+      "tags": ["agents", "orchestration", "prd", "autonomous", "worktree"],
+      "keywords": ["rav-town", "ralph", "prd", "autonomous-coding", "multi-agent", "orchestration", "worktree"]
+    },
+    {
+      "name": "dev-browser",
+      "description": "Browser automation with persistent page state via Playwright. Navigate websites, fill forms, take screenshots, extract web data, test web apps, and automate browser workflows.",
+      "version": "1.0.0",
+      "author": {
+        "name": "patelr3"
+      },
+      "source": "./plugins/dev-browser",
+      "category": "developer-tools",
+      "tags": ["browser", "automation", "playwright", "testing", "scraping"],
+      "keywords": ["browser", "playwright", "automation", "screenshots", "scraping", "testing", "web"]
+    }
+  ]
+}

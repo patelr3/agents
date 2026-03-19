@@ -1,0 +1,25 @@
+{
+  "name": "dev-browser",
+  "version": "1.0.0",
+  "description": "Browser automation with persistent page state via Playwright. Navigate websites, fill forms, take screenshots, extract web data, test web apps, and automate browser workflows.",
+  "author": {
+    "name": "patelr3",
+    "url": "https://github.com/patelr3"
+  },
+  "homepage": "https://github.com/patelr3/agents",
+  "repository": "https://github.com/patelr3/agents",
+  "license": "MIT",
+  "keywords": ["browser", "playwright", "automation", "screenshots", "scraping", "testing", "web"],
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "diff -q \"${CLAUDE_PLUGIN_ROOT}/package.json\" \"${CLAUDE_PLUGIN_DATA}/package.json\" >/dev/null 2>&1 || (cd \"${CLAUDE_PLUGIN_DATA}\" && cp \"${CLAUDE_PLUGIN_ROOT}/package.json\" . && cp \"${CLAUDE_PLUGIN_ROOT}/package-lock.json\" . 2>/dev/null; npm install --production) || rm -f \"${CLAUDE_PLUGIN_DATA}/package.json\""
+          }
+        ]
+      }
+    ]
+  }
+}

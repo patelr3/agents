@@ -53,7 +53,7 @@ Run the setup script to create the branch and worktree. The script handles every
 
 **On Linux/macOS (bash):**
 ```bash
-SCRIPT_DIR=".github/skills/worktree/scripts"
+SCRIPT_DIR="${CLAUDE_PLUGIN_ROOT}/skills/worktree/scripts"
 
 WORKTREE_DIR=$("$SCRIPT_DIR/setup-worktree.sh" \
   --branch "$BRANCH_NAME" \
@@ -65,7 +65,7 @@ WORKTREE_DIR=$("$SCRIPT_DIR/setup-worktree.sh" \
 
 **On Windows (PowerShell):**
 ```powershell
-$ScriptDir = ".github\skills\worktree\scripts"
+$ScriptDir = "${CLAUDE_PLUGIN_ROOT}\skills\worktree\scripts"
 
 $WorktreeDir = & "$ScriptDir\setup-worktree.ps1" `
   -Branch $BranchName `

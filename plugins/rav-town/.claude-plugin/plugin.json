@@ -1,0 +1,13 @@
+{
+  "name": "rav-town",
+  "version": "1.0.0",
+  "description": "Multi-agent orchestration system for autonomous feature development from PRDs. Generates PRDs, converts to structured JSON, implements stories iteratively in isolated git worktrees, and coordinates parallel agents.",
+  "author": {
+    "name": "patelr3",
+    "url": "https://github.com/patelr3"
+  },
+  "homepage": "https://github.com/patelr3/agents",
+  "repository": "https://github.com/patelr3/agents",
+  "license": "MIT",
+  "keywords": ["rav-town", "ralph", "prd", "autonomous-coding", "multi-agent", "orchestration", "worktree"]
+}

@@ -55,7 +55,7 @@ git add -A && git commit -m "chore: convert PRD to ralph format"
 Execute the ralph loop to implement all user stories:
 
 ```bash
-.github/skills/ralph-loop/scripts/ralph.sh \
+${CLAUDE_PLUGIN_ROOT}/skills/ralph-loop/scripts/ralph.sh \
   --prd docs/prds/prd-<date>-<feature>.json \
   --tool copilot \
   --port-offset <N> \

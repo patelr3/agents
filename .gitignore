@@ -1,6 +1,4 @@
 node_modules/
 tmp/*.png
-.last-branch
 *.log
 .DS_Store
-docs/prds/.ravtown-state.jsonl

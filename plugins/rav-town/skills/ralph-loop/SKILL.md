@@ -19,7 +19,7 @@ Execute the `ralph.sh` script from this skill's `scripts/` directory. The script
 ## Usage
 
 ```bash
-.github/skills/ralph-loop/scripts/ralph.sh --prd <path-to-prd.json> [--tool copilot|claude|amp] [--port-offset N] [max_iterations]
+${CLAUDE_PLUGIN_ROOT}/skills/ralph-loop/scripts/ralph.sh --prd <path-to-prd.json> [--tool copilot|claude|amp] [--port-offset N] [max_iterations]
 ```
 
 ### Parameters
@@ -35,7 +35,7 @@ Execute the `ralph.sh` script from this skill's `scripts/` directory. The script
 
 ```bash
 # Run with Copilot (default), 12 iterations max
-.github/skills/ralph-loop/scripts/ralph.sh \
+${CLAUDE_PLUGIN_ROOT}/skills/ralph-loop/scripts/ralph.sh \
   --prd docs/prds/prd-2026-03-15-task-status.json \
   --port-offset 10 \
   12
@@ -64,7 +64,7 @@ Each iteration spawns a fresh AI session that:
 The script expects:
 - **PRD JSON**: The file passed via `--prd` (e.g., `docs/prds/prd-2026-03-15-task-status.json`)
 - **Progress file**: Derived from the PRD filename — `prd-` prefix replaced with `progress-`, `.json` replaced with `.txt` (e.g., `docs/prds/progress-2026-03-15-task-status.txt`)
-- **CLAUDE.md prompt**: Located at `.github/skills/ralph-loop/scripts/CLAUDE.md` (same directory as `ralph.sh`)
+- **CLAUDE.md prompt**: Located at `${CLAUDE_PLUGIN_ROOT}/skills/ralph-loop/scripts/CLAUDE.md` (same directory as `ralph.sh`)
 
 ---
 
