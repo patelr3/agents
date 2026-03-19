@@ -12,6 +12,9 @@ You are an autonomous coding agent working on a software project.
 6. Pick the **highest priority** user story where `passes: false`
 7. Implement that single user story
 8. Run quality checks (e.g., typecheck, lint, test - use whatever your project requires)
+   - If checks **fail**: fix the issues and re-run checks until they pass before committing
+   - Do NOT commit code that fails quality checks
+   - Do NOT skip to the next story — fix the current story first
 9. Update copilot-instructions.md files if you discover reusable patterns (see below)
 10. If checks pass, commit ALL changes with message: `feat: [Story ID] - [Story Title]`
 11. Update the PRD to set `passes: true` for the completed story
@@ -68,15 +71,16 @@ Only update `.github/copilot-instructions.md` for **project-wide patterns** that
 - Keep changes focused and minimal
 - Follow existing code patterns
 
-## Browser Testing (If Available)
+## Browser Testing
 
-For any story that changes UI, verify it works in the browser if you have browser testing tools configured (e.g., via MCP):
+For any story with acceptance criteria mentioning "Verify in browser using dev-browser skill":
 
-1. Navigate to the relevant page
-2. Verify the UI changes work as expected
-3. Take a screenshot if helpful for the progress log
+1. Start the dev server using the ports from Runtime Configuration
+2. Use the `/dev-browser` skill to navigate to the relevant page
+3. Verify the UI changes work as expected
+4. Take a screenshot if helpful for the progress log
 
-If no browser tools are available, note in your progress report that manual browser verification is needed.
+If the dev-browser skill is not available, note in your progress report that manual browser verification is needed.
 
 ## Stop Condition
 
@@ -84,20 +88,23 @@ After completing a user story, check if ALL stories have `passes: true`.
 
 If ALL stories are complete and passing:
 1. Push all changes to the remote branch
-2. **Archive the PRD**: move all PRD-related files from `docs/prds/inprogress/` to `docs/prds/complete/<feature-name>/`:
+2. **Mark the PRD as complete**: update the YAML frontmatter `status` field in the PRD markdown file to `complete`:
    ```bash
    FEATURE_NAME="<feature-name>"  # derive from branchName: ralph/<feature> → <feature>
-   mkdir -p "docs/prds/complete/$FEATURE_NAME"
-   mv docs/prds/inprogress/prd-*${FEATURE_NAME}* "docs/prds/complete/$FEATURE_NAME/"
-   mv docs/prds/inprogress/progress-*${FEATURE_NAME}* "docs/prds/complete/$FEATURE_NAME/"
-   git add -A && git commit -m "chore: archive completed PRD for $FEATURE_NAME"
-   git push
+   # Update PRD status to complete
+   PRD_MD=$(ls docs/prds/prd-*-${FEATURE_NAME}.md 2>/dev/null | head -1)
+   if [ -n "$PRD_MD" ]; then
+     sed -i 's/^status: .*/status: complete/' "$PRD_MD"
+     git add -A && git commit -m "chore: mark PRD for $FEATURE_NAME as complete"
+     git push
+   fi
    ```
 3. Create a pull request against main using `gh pr create --base main` with a descriptive title listing all completed stories
-4. Enable auto-merge: `gh pr merge --auto --squash --delete-branch`
+4. Wait for CI checks if applicable: run `gh pr checks` — if checks exist, wait for them to pass before merging. If checks fail, investigate and fix.
+5. Enable auto-merge: `gh pr merge --auto --squash --delete-branch`
 5. Reply with: <promise>PRD-COMPLETE</promise>
 
-The archive commit **must** happen before the PR is created so that it is included in the PR diff and lands on main when merged.
+The status update commit **must** happen before the PR is created so that it is included in the PR diff and lands on main when merged.
 
 If there are still stories with `passes: false`, end your response normally (another iteration will pick up the next story).
 
@@ -108,6 +115,6 @@ If there are still stories with `passes: false`, end your response normally (ano
 - Keep CI green
 - Read the Codebase Patterns section in the progress file before starting
 - Use the file paths from Runtime Configuration — do NOT hardcode file paths
-- PRD and progress files are in `docs/prds/inprogress/` — use the paths from Runtime Configuration
+- PRD and progress files are in `docs/prds/` — use the paths from Runtime Configuration
 - You may be working in a git worktree — this is normal, treat it as your working directory
 - If port configuration is provided in Runtime Configuration, use those ports when starting dev servers

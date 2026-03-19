@@ -6,57 +6,79 @@ A multi-agent orchestration system that autonomously implements features from Pr
 
 ## Quick Start
 
-### 1. Create PRDs
+### 1. Create a PRD
 
-Use the `/prd` skill to generate PRDs for each feature you want to build:
+Use the `/prd` skill to generate a PRD:
 
 ```
 /prd Add a task priority system with high/medium/low levels
 ```
 
-This creates `docs/prds/todo/prd-<date>-<feature>.md` for each feature. Repeat for as many features as you need.
+This creates `docs/prds/prd-<date>-<feature>.md` with `status: todo` in the YAML frontmatter. You can create one or many.
 
 ### 2. Run Ravtown Mayor
 
-Launch the orchestrator agent to implement all pending PRDs:
+Launch the orchestrator agent:
 
 ```bash
 copilot --agent ravtown-mayor
 ```
 
-Then prompt it with:
+Submit PRDs incrementally — one at a time or in batches:
+
+```
+Complete docs/prds/prd-2026-03-15-task-priority.md
+```
+
+Or submit everything at once:
 
 ```
 Complete all todo PRDs
 ```
 
-The mayor takes it from there — preparing branches, launching parallel agents, and merging PRs until every PRD is done.
+You can keep sending new PRDs to the same session:
+
+```
+Complete docs/prds/prd-2026-03-19-user-profiles.md
+```
+
+The mayor tracks state in a local JSONL file (`docs/prds/.ravtown-state.jsonl`) so it can resume if restarted. Ask for status at any time:
+
+```
+Status
+```
+
+The mayor tracks state, invokes `/worktree` for each PRD, and monitors progress. Submit more PRDs at any time.
 
 ## How It Works
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                      Ravtown Mayor                               │
-│  Scans PRDs → builds dependency graph → prepares branches        │
-│  → launches agent waves                                          │
+│  Accepts PRDs incrementally → tracks state in JSONL              │
+│  → invokes /worktree per PRD → monitors progress                 │
 └────────┬────────────────────────────────────────────────────────┘
          │
-         ├─ Ralph Agent #1 (port offset 10)
-         │  ├─ creates worktree from prepared branch
-         │  ├─ auto-runs /ralph-prd → converts PRD to JSON
-         │  ├─ runs /ralph-loop → iterates through stories
-         │  └─ creates PR → merges → archives PRD → signals PRD-COMPLETE
+         ├─ /worktree #1 (port offset 10)
+         │  ├─ creates branch ralph/<feature> from HEAD
+         │  ├─ creates worktree
+         │  ├─ spawns ralph-agent subagent
+         │  │   ├─ reads PRD (plan file)
+         │  │   ├─ /ralph-prd → converts PRD to JSON
+         │  │   ├─ /ralph-loop → iterates through stories
+         │  │   └─ creates PR → merges → archives PRD
+         │  └─ cleans up worktree
          │
-         ├─ Ralph Agent #2 (port offset 20)
+         ├─ /worktree #2 (port offset 20)
          │  └─ same flow for another independent feature
          │
-         └─ Ralph Agent #3 (port offset 30)  [blocked]
-            └─ waits for Agent #1 to finish (dependency)
+         └─ /worktree #3 (port offset 30)  [blocked]
+            └─ waits for #1 to finish (dependency)
 ```
 
 ### The Loop
 
-Each Ralph agent runs a **loop** (`ralph.sh` via the `/ralph-loop` skill) that spawns a fresh AI coding session per iteration:
+Each ralph-agent subagent runs a **loop** (`ralph.sh` via the `/ralph-loop` skill) that spawns a fresh AI coding session per iteration:
 
 1. **Read PRD** — pick the highest-priority story where `passes: false`
 2. **Implement** — make the code changes for that one story
@@ -72,8 +94,8 @@ Each Ralph agent runs a **loop** (`ralph.sh` via the `/ralph-loop` skill) that s
 
 | Agent | Role |
 |---|---|
-| [**ralph-agent**](.github/agents/ralph-agent.md) | Executes a single PRD end-to-end. Creates worktree from a prepared branch, auto-runs `/ralph-prd` to convert the PRD, runs `/ralph-loop` to implement stories. The loop handles archiving and PR creation. |
-| [**ravtown-mayor**](.github/agents/ravtown-mayor.md) | Fleet manager. Scans `docs/prds/todo/` for PRD files, builds a dependency DAG, prepares isolated feature branches from HEAD, launches agents in parallel waves, cleans up on completion. |
+| [**ravtown-mayor**](.github/agents/ravtown-mayor.md) | Fleet manager. Accepts PRDs incrementally, tracks state in JSONL, invokes `/worktree` per PRD with `ralph-agent` as the subagent. Resumable across sessions. |
+| [**ralph-agent**](.github/agents/ralph-agent.md) | PRD processor. Runs as a subagent inside a worktree — reads the PRD (plan file), converts it with `/ralph-prd`, implements stories with `/ralph-loop`, archives and creates PR. |
 
 ### Skills (`/.github/skills/`)
 
@@ -81,7 +103,8 @@ Reusable capabilities that agents (or humans) can invoke:
 
 | Skill | Purpose |
 |---|---|
-| [**prd**](.github/skills/prd/SKILL.md) | Generates a Product Requirements Document from a feature description. Asks clarifying questions, outputs structured markdown to `docs/prds/todo/`. |
+| [**worktree**](.github/skills/worktree/SKILL.md) | Executes work in an isolated git worktree. Creates a branch, sets up a worktree, spawns a configurable subagent to do the work, and cleans up. Used by agents for parallel isolation or by humans for any branch-isolated task. |
+| [**prd**](.github/skills/prd/SKILL.md) | Generates a Product Requirements Document from a feature description. Asks clarifying questions, outputs structured markdown to `docs/prds/` with `status: todo` in YAML frontmatter. |
 | [**ralph-prd**](.github/skills/ralph-prd/SKILL.md) | Converts a markdown PRD into Ralph's `prd-<date>-<feature>.json` format. Ensures stories are right-sized (one iteration each), properly ordered, and have verifiable acceptance criteria. |
 | [**ralph-loop**](.github/skills/ralph-loop/SKILL.md) | Runs the Ralph execution loop (`ralph.sh`). Iterates through PRD user stories, spawning a fresh AI session per iteration to implement, test, and commit each story. |
 | [**dev-browser**](.github/skills/dev-browser/SKILL.md) | Browser automation via Playwright. Agents use this to visually verify UI changes — navigate pages, click elements, take screenshots. |
@@ -97,7 +120,7 @@ Reusable capabilities that agents (or humans) can invoke:
 
 | Prompt | Purpose |
 |---|---|
-| [**create-and-merge-pr**](.github/prompts/create-and-merge-pr.prompt.md) | Step-by-step guide for creating a PR, waiting for CI, and squash-merging to main. Used by agents at the end of a PRD. |
+| [**create-and-merge-pr**](.github/prompts/create-and-merge-pr.prompt.md) | Reference guide for creating a PR, waiting for CI, and squash-merging to main. The Ralph loop's final iteration follows this pattern (see `CLAUDE.md` Stop Condition). |
 
 ### Root Symlinks
 
@@ -110,15 +133,17 @@ These symlinks ensure that tools like GitHub Copilot, Claude Code, and other AI 
 
 ## PRD Lifecycle
 
-PRDs flow through three stages, tracked by directory location:
+PRDs flow through three stages, tracked by a YAML frontmatter `status` field:
 
 ```
 docs/prds/
-├── todo/           ← PRDs waiting to be worked on
-├── inprogress/     ← PRD currently being implemented (per branch)
-└── complete/       ← Completed PRDs, organized by feature
-    └── <feature-name>/
+├── prd-2026-03-15-feature-a.md   ← status: todo
+├── prd-2026-03-16-feature-b.md   ← status: inprogress
+├── prd-2026-03-17-feature-c.md   ← status: complete
+└── ...
 ```
+
+The `status` field in each PRD's frontmatter is one of: `todo`, `inprogress`, `complete`.
 
 ### Naming Convention
 
@@ -139,57 +164,63 @@ The date is set when the `/prd` skill first creates the PRD and carries through 
 1. User describes a feature
         │
         ▼
-2. /prd skill generates docs/prds/todo/prd-2026-03-15-feature.md
+2. /prd skill generates docs/prds/prd-2026-03-15-feature.md (status: todo)
         │
         ▼
-3. Ravtown Mayor discovers PRDs in docs/prds/todo/
+3. User tells Ravtown Mayor: "Complete this PRD"
+   (or "Complete all todo PRDs")
         │
         ▼
-4. Ravtown Mayor prepares branch from HEAD:
+4. Mayor submits PRD → appends to JSONL state → invokes /worktree:
    ┌─────────────────────────────────────────┐
-   │  Create branch ralph/<feature> from HEAD │
-   │  Remove other PRDs from docs/prds/todo/  │
-   │  Commit and push                         │
+   │  agent_type: ralph-agent                 │
+   │  plan_file: docs/prds/prd-xxx.md        │
+   │  branch: ralph/<feature> (new)           │
+   │  port_offset: 10                         │
    └─────────────────────────────────────────┘
         │
         ▼
-5. Ravtown Mayor launches Ralph Agent in background
-        │
-        ▼
-6. Ralph Agent sets up:
+5. /worktree skill sets up:
    ┌─────────────────────────────────────────┐
-   │  Create worktree from prepared branch    │
-   │  Move PRD: todo/ → inprogress/           │
-   │  Auto-run /ralph-prd → creates JSON      │
+   │  Create branch from HEAD                 │
+   │  Create worktree                         │
+   │  Spawn ralph-agent subagent              │
    └─────────────────────────────────────────┘
         │
         ▼
-7. Ralph Agent runs /ralph-loop:
+6. Ralph-agent works inside the worktree:
    ┌─────────────────────────────────────────┐
-   │  Iteration 1: US-001 (schema)           │
-   │  Iteration 2: US-002 (backend)          │
-   │  Iteration 3: US-003 (UI)              │
-   │  Iteration 4: US-004 (filters)          │
-   │  Iteration 5: All pass → archive PRD    │
-   │               → create & merge PR       │
+   │  Read PRD (plan file)                    │
+   │  Update PRD status: todo → inprogress    │
+   │  /ralph-prd → creates JSON               │
+   │  /ralph-loop:                            │
+   │    Iteration 1: US-001 (schema)          │
+   │    Iteration 2: US-002 (backend)         │
+   │    Iteration 3: US-003 (UI)              │
+   │    Iteration 4: US-004 (filters)         │
+   │    Iteration 5: All pass → archive PRD   │
+   │                 → create & merge PR      │
    └─────────────────────────────────────────┘
+        │
+        ▼
+7. /worktree skill cleans up worktree
         │
         ▼
 8. PR auto-merges to main (includes archived PRD)
         │
         ▼
-9. Ravtown Mayor cleans up worktree, launches next wave
+9. Mayor updates JSONL state → user can submit more PRDs
 ```
 
 ## Port Isolation
 
 When multiple agents run in parallel, each gets a unique port offset to prevent collisions:
 
-| Agent | Offset | API Port | Web Port |
+| Instance | Offset | API Port | Web Port |
 |---|---|---|---|
-| Agent 1 | 10 | 3011 | 3010 |
-| Agent 2 | 20 | 3021 | 3020 |
-| Agent 3 | 30 | 3031 | 3030 |
+| Worktree 1 | 10 | 3011 | 3010 |
+| Worktree 2 | 20 | 3021 | 3020 |
+| Worktree 3 | 30 | 3031 | 3030 |
 
 ## PRD Format
 
@@ -223,11 +254,20 @@ Key rules:
 
 ## Manual / Single Feature
 
-If you prefer to run a single feature manually:
+You can also use the `/worktree` skill directly to process a single PRD:
+
+```
+/worktree
+  agent_type: ralph-agent
+  plan_file: docs/prds/prd-2026-03-15-feature.md
+  branch: ralph/feature
+```
+
+Or run the ralph loop directly (requires the PRD to already be converted to JSON with `status: inprogress`):
 
 ```bash
 .github/skills/ralph-loop/scripts/ralph.sh \
-  --prd docs/prds/inprogress/prd-2026-03-15-feature.json \
+  --prd docs/prds/prd-2026-03-15-feature.json \
   --tool copilot \
   10
 ```
@@ -239,9 +279,7 @@ If you prefer to run a single feature manually:
    .github/agents/
    .github/skills/
    .github/prompts/
-   docs/prds/todo/
-   docs/prds/inprogress/
-   docs/prds/complete/
+   docs/prds/
    AGENTS.md → .github/copilot-instructions.md
    CLAUDE.md → .github/copilot-instructions.md
    ```
