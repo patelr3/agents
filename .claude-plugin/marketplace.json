@@ -17,7 +17,7 @@
       "author": {
         "name": "patelr3"
       },
-      "source": "./plugins/rav-town",
+      "source": "./rav-town",
       "category": "developer-tools",
       "tags": ["agents", "orchestration", "prd", "autonomous", "worktree"],
       "keywords": ["rav-town", "ralph", "prd", "autonomous-coding", "multi-agent", "orchestration", "worktree"]
@@ -29,7 +29,7 @@
       "author": {
         "name": "patelr3"
       },
-      "source": "./plugins/dev-browser",
+      "source": "./dev-browser",
       "category": "developer-tools",
       "tags": ["browser", "automation", "playwright", "testing", "scraping"],
       "keywords": ["browser", "playwright", "automation", "screenshots", "scraping", "testing", "web"]
