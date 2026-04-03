@@ -11,7 +11,6 @@ Multi-agent orchestration system for autonomous feature development from PRDs.
 | **prd** | `/prd`, "create a prd", "plan this feature" | Generate structured PRDs from feature descriptions |
 | **ralph-prd** | `/ralph-prd`, "convert this prd", "ralph json" | Convert markdown PRDs to Ralph's JSON execution format |
 | **ralph-loop** | `/ralph-loop`, "run ralph loop", "start ralph" | Iterative story-by-story implementation loop |
-| **worktree** | `/worktree`, "run in worktree" | Isolated git worktree lifecycle — branch, worktree, subagent, PR, cleanup |
 
 ### Agents
 
@@ -19,6 +18,12 @@ Multi-agent orchestration system for autonomous feature development from PRDs.
 |---|---|
 | **ravtown-mayor** | Fleet manager. Accepts PRDs, tracks state in JSONL, delegates to ralph-agent subagents via `/worktree`. Manages dependencies and parallel execution. |
 | **ralph-agent** | Autonomous PRD processor. Reads a PRD, converts to JSON, runs the ralph-loop, signals completion. Runs inside a worktree. |
+
+## Required Plugins
+
+| Plugin | Install Command | Purpose |
+|---|---|---|
+| **worktree-devcontainer** | `/plugin install worktree-devcontainer@rav-town-marketplace` | Provides the `/worktree` skill used by the mayor and ralph agents for isolated git worktree lifecycle management |
 
 ## Usage
 
