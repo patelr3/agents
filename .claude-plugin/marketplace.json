@@ -33,6 +33,18 @@
       "category": "developer-tools",
       "tags": ["browser", "automation", "playwright", "testing", "scraping"],
       "keywords": ["browser", "playwright", "automation", "screenshots", "scraping", "testing", "web"]
+    },
+    {
+      "name": "worktree-devcontainer",
+      "description": "Isolated development environments for AI sub-agents. Git worktree lifecycle management and dev container orchestration for running work in isolated branches and containerized environments.",
+      "version": "1.0.0",
+      "author": {
+        "name": "patelr3"
+      },
+      "source": "./worktree-devcontainer",
+      "category": "developer-tools",
+      "tags": ["worktree", "devcontainer", "isolation", "git", "docker"],
+      "keywords": ["worktree", "devcontainer", "isolation", "git", "docker", "container", "sub-agent"]
     }
   ]
 }

@@ -11,6 +11,7 @@ Add the marketplace and install the plugins you want:
 ```
 /plugin marketplace add patelr3/agents
 /plugin install rav-town@rav-town-marketplace
+/plugin install worktree-devcontainer@rav-town-marketplace
 /plugin install dev-browser@rav-town-marketplace
 ```
 
@@ -25,11 +26,25 @@ The core orchestration system. Includes:
 | **prd** | skill | Generate structured PRDs from feature descriptions |
 | **ralph-prd** | skill | Convert markdown PRDs to Ralph's JSON execution format |
 | **ralph-loop** | skill | Iterative execution loop — one story per AI session |
-| **worktree** | skill | Isolated git worktree lifecycle management |
 | **ravtown-mayor** | agent | Fleet manager — coordinates parallel PRD implementations |
 | **ralph-agent** | agent | Autonomous PRD processor — reads, converts, implements |
 
+> **Requires:** `worktree-devcontainer` plugin for the `/worktree` skill used by the mayor and ralph agents.
+
 [→ Full documentation](plugins/rav-town/README.md)
+
+### worktree-devcontainer
+
+Isolated development environments for AI sub-agents. Two composable skills:
+
+| Component | Type | Description |
+|---|---|---|
+| **worktree** | skill | Git worktree lifecycle — branch creation, worktree setup, sub-agent execution, PR creation, cleanup |
+| **dev-container** | skill | Dev container lifecycle — build container from workspace, run AI tool inside, cleanup |
+
+Use worktree for branch isolation, dev-container for environment isolation, or both together for full isolation.
+
+[→ Full documentation](plugins/worktree-devcontainer/README.md)
 
 ### dev-browser
 

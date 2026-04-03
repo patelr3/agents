@@ -1,0 +1,13 @@
+{
+  "name": "worktree-devcontainer",
+  "version": "1.0.0",
+  "description": "Isolated development environments for AI sub-agents. Provides git worktree lifecycle management and dev container orchestration so sub-agents work in isolated branches and containerized environments.",
+  "author": {
+    "name": "patelr3",
+    "url": "https://github.com/patelr3"
+  },
+  "homepage": "https://github.com/patelr3/agents",
+  "repository": "https://github.com/patelr3/agents",
+  "license": "MIT",
+  "keywords": ["worktree", "devcontainer", "isolation", "git", "docker", "sub-agent", "orchestration"]
+}
