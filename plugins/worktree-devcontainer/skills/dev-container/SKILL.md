@@ -158,7 +158,7 @@ The exec script runs the appropriate AI tool command inside the container:
 
 | Tool | Command |
 |---|---|
-| `copilot` | `copilot -p "<prompt>"` |
+| `copilot` | `copilot -p "<prompt>" --allow-all` |
 | `claude` | `claude -p "<prompt>" --allowedTools "edit,write,bash,computer,mcp" --dangerouslySkipPermissions` |
 | `amp` | `amp -p "<prompt>"` |
 

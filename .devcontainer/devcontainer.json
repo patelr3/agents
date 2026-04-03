@@ -4,6 +4,9 @@
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
-  "postCreateCommand": "npm install -g @devcontainers/cli @github/copilot && curl -fsSL https://claude.ai/install.sh | bash",
+  "mounts": [
+    "source=${localEnv:HOME}/.git-credentials,target=/home/node/.git-credentials,type=bind,readonly"
+  ],
+  "postCreateCommand": "npm install -g @devcontainers/cli @github/copilot && curl -fsSL https://claude.ai/install.sh | bash && git config --global credential.helper store && TOKEN=$(grep github.com ~/.git-credentials | sed 's|https://[^:]*:\\([^@]*\\)@.*|\\1|') && echo \"export GITHUB_TOKEN=$TOKEN\" >> ~/.bashrc && echo \"export GH_TOKEN=$TOKEN\" >> ~/.bashrc",
   "remoteUser": "node"
 }

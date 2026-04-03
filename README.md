@@ -44,6 +44,8 @@ Isolated development environments for AI sub-agents. Two composable skills:
 
 Use worktree for branch isolation, dev-container for environment isolation, or both together for full isolation.
 
+The dev container is pre-configured with Copilot CLI, Claude Code, and GitHub CLI. Credentials are forwarded from the host via `~/.git-credentials` mount. See the [tested workflow](plugins/worktree-devcontainer/README.md#tested-workflow) for an end-to-end validation.
+
 [→ Full documentation](plugins/worktree-devcontainer/README.md)
 
 ### dev-browser

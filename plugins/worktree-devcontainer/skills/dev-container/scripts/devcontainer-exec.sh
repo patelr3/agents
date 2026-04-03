@@ -93,15 +93,18 @@ esac
 
 # --- Build the tool command ---
 
+# Source .bashrc for environment variables (e.g., GITHUB_TOKEN) before running the tool
+BASHRC_INIT="[ -f ~/.bashrc ] && . ~/.bashrc;"
+
 case "$TOOL" in
   copilot)
-    TOOL_CMD="copilot -p \"$PROMPT\""
+    TOOL_CMD="${BASHRC_INIT} copilot -p \"$PROMPT\" --allow-all"
     ;;
   claude)
-    TOOL_CMD="claude -p \"$PROMPT\" --allowedTools \"edit,write,bash,computer,mcp\" --dangerouslySkipPermissions"
+    TOOL_CMD="${BASHRC_INIT} claude -p \"$PROMPT\" --allowedTools \"edit,write,bash,computer,mcp\" --dangerouslySkipPermissions"
     ;;
   amp)
-    TOOL_CMD="amp -p \"$PROMPT\""
+    TOOL_CMD="${BASHRC_INIT} amp -p \"$PROMPT\""
     ;;
 esac
 

@@ -48,14 +48,18 @@ The worktree + dev-container composition was validated end-to-end with the follo
 
 | Step | Skill | Script | Result |
 |---|---|---|---|
-| 1. Create branch & worktree | worktree | `setup-worktree.sh --branch feat/add-worktree-devcontainer-license --base-ref HEAD` | ✅ Branch created via `git update-ref` (no HEAD change), pushed to origin, worktree at `../agents-add-worktree-devcontainer-license/` |
-| 2. Build dev container | dev-container | `devcontainer-up.sh --workspace <worktree> --name agents-worktree-license-test` | ✅ Container built from `.devcontainer/devcontainer.json`, started successfully |
-| 3. Execute AI tool | dev-container | `devcontainer-exec.sh --workspace <worktree> --tool copilot --prompt "..."` | ⚠️ `copilot` not found in container (exit 127) — expected; AI tool must be pre-installed in the container image |
-| 4. Manual fallback | — | Copied LICENSE, committed, pushed from worktree | ✅ Commit pushed to feature branch |
-| 5. Cleanup container | dev-container | `devcontainer-down.sh --workspace <worktree> --name agents-worktree-license-test` | ✅ Container found by label and force-removed |
-| 6. Cleanup worktree | worktree | `cleanup-worktree.sh --worktree-dir <worktree>` | ✅ Worktree removed, `git worktree prune` ran |
+| 1. Create branch & worktree | worktree | `setup-worktree.sh --branch feat/license-worktree-devcontainer --base-ref HEAD` | ✅ Branch created via `git update-ref` (no HEAD change), pushed to origin, worktree at `../agents-license-worktree-devcontainer/` |
+| 2. Build dev container | dev-container | `devcontainer up` with `--mount` for main repo `.git` | ✅ Container built from `.devcontainer/devcontainer.json`, copilot + claude installed via `postCreateCommand` |
+| 3. Execute AI tool | dev-container | `devcontainer-exec.sh --workspace <worktree> --tool copilot --prompt "..."` | ✅ Copilot ran inside the container with `--allow-all`, copied LICENSE, committed, and pushed. Output: `WORKTREE-COMPLETE` |
+| 4. Cleanup container | dev-container | `devcontainer-down.sh --workspace <worktree> --name agents-license-test` | ✅ Container found by label and force-removed |
+| 5. Cleanup worktree | worktree | `cleanup-worktree.sh --worktree-dir <worktree>` | ✅ Worktree removed, `git worktree prune` ran |
 
-**Key finding:** The dev container base image (`mcr.microsoft.com/devcontainers/typescript-node:22`) does not include `copilot`, `claude`, or `amp`. To use the dev-container skill's exec step, the AI tool must be added to the Dockerfile or via a dev container feature.
+**Key findings from testing:**
+
+1. **AI tools must be in the image.** The `postCreateCommand` installs `@github/copilot` (npm) and Claude Code (native installer) so they are available for `devcontainer-exec`.
+2. **Worktree `.git` references break in containers.** A worktree's `.git` file contains an absolute path to the main repo's `.git/worktrees/` directory. When mounted in a container, that path doesn't exist. **Fix:** Pass `--mount type=bind,source=<repo>/.git,target=<repo>/.git` when running `devcontainer up`.
+3. **Auth forwarding is required.** Mount `~/.git-credentials` into the container and export `GITHUB_TOKEN` from it in the `postCreateCommand` so both `git push` and `copilot`/`claude` can authenticate.
+4. **Non-interactive tools need permission flags.** Copilot requires `--allow-all` and Claude requires `--dangerouslySkipPermissions` for unattended execution.
 
 ## Prerequisites
 
