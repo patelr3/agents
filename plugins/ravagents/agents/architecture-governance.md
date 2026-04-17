@@ -42,7 +42,7 @@ When violations or drift are detected:
 When a significant architectural decision is made — new pattern adopted, boundary redrawn, dependency rule changed — create an ADR using this structure:
 
 ```
-# ADR-NNNN: [Title]
+# ADR-0001: [Title]
 ## Status: [Proposed | Accepted | Deprecated | Superseded]
 ## Context
 ## Decision
