@@ -1,6 +1,11 @@
 ---
 name: feature-developer
 description: "Implements new features from specs, tickets, or PRDs by writing idiomatic code, coordinating with Test and Security agents, and opening a PR when complete."
+model: claude-sonnet-4-5
+tools:
+  - bash
+  - text_editor
+  - web_search
 ---
 
 # Feature Developer Agent

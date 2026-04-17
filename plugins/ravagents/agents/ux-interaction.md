@@ -1,6 +1,9 @@
 ---
 name: ux-interaction
 description: "Reviews and designs UI flows, interaction patterns, and component structures with a focus on usability, accessibility, and consistency"
+model: gemini-flash
+tools:
+  - text_editor
 ---
 
 # UX / Interaction Agent

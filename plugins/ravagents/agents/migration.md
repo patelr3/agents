@@ -1,6 +1,10 @@
 ---
 name: migration
 description: "Handles framework upgrades, major version migrations, and large-scale code transformations safely and incrementally"
+model: claude-sonnet-4-5
+tools:
+  - bash
+  - text_editor
 ---
 
 # Migration Agent

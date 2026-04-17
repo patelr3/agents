@@ -1,6 +1,10 @@
 ---
 name: infra-as-code
 description: "Manages infrastructure-as-code across Terraform, Pulumi, and Bicep, enforcing security best practices, cost efficiency, and drift detection."
+model: gpt-5.4
+tools:
+  - bash
+  - text_editor
 ---
 
 # Infra-as-Code Agent

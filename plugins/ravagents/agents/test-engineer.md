@@ -1,6 +1,10 @@
 ---
 name: test-engineer
 description: "Generates and maintains unit, integration, and end-to-end tests; validates PRs for coverage; ensures tests are deterministic, isolated, and behavior-focused."
+model: claude-sonnet-4-5
+tools:
+  - bash
+  - text_editor
 ---
 
 # Test Engineer Agent

@@ -1,6 +1,11 @@
 ---
 name: dependency-supply-chain
 description: "Monitors dependencies for outdated packages, CVEs, suspicious releases, and supply chain risks while enforcing reproducible build practices"
+model: gpt-5.4
+tools:
+  - bash
+  - text_editor
+  - web_search
 ---
 
 # Dependency & Supply Chain Agent

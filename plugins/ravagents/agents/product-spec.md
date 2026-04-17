@@ -1,6 +1,9 @@
 ---
 name: product-spec
 description: "Converts ideas and requests into structured, implementation-ready product specs (PRDs) with acceptance criteria, user stories, and risk analysis"
+model: gpt-5.4
+tools:
+  - text_editor
 ---
 
 # Product Spec Agent

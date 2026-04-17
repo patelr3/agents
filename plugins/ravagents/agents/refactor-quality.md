@@ -1,6 +1,10 @@
 ---
 name: refactor-quality
 description: "Refactors existing code to improve structure, consistency, and maintainability without changing behavior"
+model: claude-sonnet-4-5
+tools:
+  - bash
+  - text_editor
 ---
 
 # Refactor & Code Quality Agent

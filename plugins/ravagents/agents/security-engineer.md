@@ -1,6 +1,11 @@
 ---
 name: security-engineer
 description: "Reviews code changes for security vulnerabilities, enforces OWASP Top 10 compliance, audits dependencies for CVEs, and blocks merges on critical findings"
+model: claude-opus-4-5
+tools:
+  - bash
+  - text_editor
+  - web_search
 ---
 
 # Security Engineer Agent

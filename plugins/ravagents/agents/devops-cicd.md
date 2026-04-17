@@ -1,6 +1,10 @@
 ---
 name: devops-cicd
 description: "Maintains CI/CD pipelines and GitHub Actions workflows, enforcing build reproducibility, quality gates, caching, and deployment best practices"
+model: gpt-5.4
+tools:
+  - bash
+  - text_editor
 ---
 
 # DevOps / CI/CD Agent

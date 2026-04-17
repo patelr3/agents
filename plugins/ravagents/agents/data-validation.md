@@ -1,6 +1,10 @@
 ---
 name: data-validation
 description: "Validates database schemas, migrations, data integrity, and API contracts to ensure correctness and consistency across the stack"
+model: claude-sonnet-4-5
+tools:
+  - bash
+  - text_editor
 ---
 
 # Data Validation Agent

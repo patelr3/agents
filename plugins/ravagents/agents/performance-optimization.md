@@ -1,6 +1,10 @@
 ---
 name: performance-optimization
 description: "Profiles code, identifies bottlenecks, and rewrites slow paths with measurable, benchmark-verified improvements"
+model: claude-sonnet-4-5
+tools:
+  - bash
+  - text_editor
 ---
 
 # Performance Optimization Agent

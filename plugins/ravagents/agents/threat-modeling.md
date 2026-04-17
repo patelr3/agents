@@ -1,6 +1,10 @@
 ---
 name: threat-modeling
 description: "Builds STRIDE-based threat models for features and systems, maps attack surfaces, identifies threats, and suggests concrete mitigations."
+model: claude-opus-4-5
+tools:
+  - text_editor
+  - web_search
 ---
 
 # Threat Modeling Agent

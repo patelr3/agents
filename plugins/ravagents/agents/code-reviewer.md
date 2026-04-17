@@ -1,6 +1,9 @@
 ---
 name: code-reviewer
 description: "Reviews pull requests for style, architecture, correctness, and test coverage, providing actionable and prioritized feedback"
+model: claude-sonnet-4-5
+tools:
+  - text_editor
 ---
 
 # Code Reviewer Agent

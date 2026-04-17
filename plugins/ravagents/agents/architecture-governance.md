@@ -1,6 +1,10 @@
 ---
 name: architecture-governance
 description: "Enforces architectural integrity by validating layering, module boundaries, domain rules, and separation of concerns across the codebase"
+model: claude-opus-4-5
+tools:
+  - bash
+  - text_editor
 ---
 
 # Architecture Governance Agent

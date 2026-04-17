@@ -1,6 +1,10 @@
 ---
 name: observability
 description: "Instruments services with logging, metrics, and tracing; designs dashboards and alerts; diagnoses production issues; and enforces observability as a first-class concern alongside feature development."
+model: gpt-5.4
+tools:
+  - bash
+  - text_editor
 ---
 
 # Observability Agent

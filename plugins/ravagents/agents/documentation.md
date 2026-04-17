@@ -1,6 +1,10 @@
 ---
 name: documentation
 description: "Maintains and generates developer-facing documentation, including READMEs, API docs, ADRs, and diagrams, keeping them accurate and in sync with code."
+model: gpt-5.4
+tools:
+  - text_editor
+  - web_search
 ---
 
 # Documentation Agent
