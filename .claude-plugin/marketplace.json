@@ -45,6 +45,18 @@
       "category": "developer-tools",
       "tags": ["worktree", "devcontainer", "isolation", "git", "docker"],
       "keywords": ["worktree", "devcontainer", "isolation", "git", "docker", "container", "sub-agent"]
+    },
+    {
+      "name": "ravagents",
+      "description": "18 specialized engineering agents covering the full software development lifecycle — feature development, testing, security, threat modeling, DevOps, infrastructure, observability, code review, architecture governance, documentation, product spec, UX, roadmap planning, migration, performance optimization, and data validation.",
+      "version": "1.0.0",
+      "author": {
+        "name": "patelr3"
+      },
+      "source": "./ravagents",
+      "category": "developer-tools",
+      "tags": ["agents", "engineering", "security", "devops", "testing", "architecture"],
+      "keywords": ["agents", "feature-developer", "security-engineer", "test-engineer", "devops", "architecture", "code-review", "product-spec", "ux", "observability", "migration", "performance"]
     }
   ]
 }

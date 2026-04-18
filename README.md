@@ -13,6 +13,7 @@ Add the marketplace and install the plugins you want:
 /plugin install rav-town@rav-town-marketplace
 /plugin install worktree-devcontainer@rav-town-marketplace
 /plugin install dev-browser@rav-town-marketplace
+/plugin install ravagents@rav-town-marketplace
 ```
 
 ## Plugins
@@ -53,6 +54,21 @@ The dev container is pre-configured with Copilot CLI, Claude Code, and GitHub CL
 Standalone browser automation via Playwright. Navigate websites, fill forms, take screenshots, extract data, test web apps. Used by rav-town agents to visually verify UI changes, but works independently too.
 
 [→ Full documentation](plugins/dev-browser/README.md)
+
+### ravagents
+
+18 specialized engineering agents covering the full software development lifecycle — from product spec to deployment, security, and observability. Each agent has a scoped tool list and model selected for its task complexity.
+
+| Category | Agents |
+|---|---|
+| 🧠 Core Engineering | feature-developer, refactor-quality, test-engineer |
+| 🔐 Security & Reliability | security-engineer, threat-modeling, dependency-supply-chain |
+| ⚙️ DevOps & Infrastructure | devops-cicd, infra-as-code, observability |
+| 🧪 Quality, Review & Governance | code-reviewer, architecture-governance, documentation |
+| 🧭 Product & Planning | product-spec, ux-interaction, roadmap-prioritization |
+| 🧩 Power-Up | migration, performance-optimization, data-validation |
+
+[→ Full documentation](plugins/ravagents/README.md)
 
 ## Quick Start
 
